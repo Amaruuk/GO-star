@@ -19,9 +19,14 @@ func main() {
 		// Screen configuration.
 		screen.SetTitle("StarSlayer")
 		screen.SetSize(80, 24)
+		screen.AutoSize = false
+
+		// Randomize our seed so the map is randomized per run.
+		goro.SetSeed(goro.RandomSeed())
 
 		// Our initial variables.
 		mapWidth, mapHeight := 80, 24
+		maxRooms, roomMinSize, roomMaxSize := 30, 6, 10
 
 		colors := map[string]goro.Color{
 			"darkWall":   goro.Color{0x80, 0x80, 0x80, 0xFF},
@@ -42,6 +47,8 @@ func main() {
 			player,
 			npc,
 		}
+
+		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, player)
 
 		for {
 			// Draw screen.
