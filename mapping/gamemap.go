@@ -99,6 +99,21 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 	}
 }
 
+// Explored returns if the tile at x by y has been explored.
+func (g *GameMap) Explored(x, y int) bool {
+	if g.InBounds(x, y) {
+		return g.Tiles[x][y].Explored
+	}
+	return false
+}
+
+// SetExplored sets the explored state of the tile at x by y to the passed explored bool.
+func (g *GameMap) SetExplored(x, y int, explored bool) {
+	if g.InBounds(x, y) {
+		g.Tiles[x][y].Explored = explored
+	}
+}
+
 // IsBlocked returns if the given coordinates are blocking movement.
 func (g *GameMap) IsBlocked(x, y int) bool {
 	// Always block if outside our GameMap's bounds.
