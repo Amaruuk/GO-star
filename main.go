@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kettek/goro"
@@ -16,19 +17,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	goro.Run(func(screen *goro.Screen) {
+	goro.Setup(func(screen *goro.Screen) {
 		// Screen configuration.
 		screen.SetTitle("StarSlayer")
-		screen.SetSize(50, 50)
+		screen.SetSize(64, 36)
 		screen.AutoSize = false
 		screen.SetGlyphs(0, "Starslayer.ttf", 16)
 
 		// Randomize our seed so the map is randomized per run.
 		goro.SetSeed(goro.RandomSeed())
+	})
 
+	goro.Run(func(screen *goro.Screen) {
 		// Our initial variables.
-		mapWidth, mapHeight := 50, 50
+		mapWidth, mapHeight := 64, 36
 		maxRooms, roomMinSize, roomMaxSize := 30, 6, 10
+		maxMonstersPerRoom := 3
+		gameState := PlayerTurnState
 
 		fovRadius := 10
 		fovRecompute := true
@@ -47,22 +52,20 @@ func main() {
 
 		gameMap.Initialize()
 
-		player := entity.NewEntity(screen.Columns/2, screen.Rows/2, '@', goro.Style{Foreground: goro.ColorBlack})
-		npc := entity.NewEntity(screen.Columns/2-5, screen.Rows/2, '&', goro.Style{Foreground: goro.ColorBlack})
+		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorBlack}, "Player", entity.BlockMovement)
 
 		entities := []*entity.Entity{
 			player,
-			npc,
 		}
 
-		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, player)
+		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, &entities, maxMonstersPerRoom)
 
 		fovMap := InitializeFoV(&gameMap)
 
 		for {
 
 			if fovRecompute {
-				RecomputeFoV(fovMap, player.X, player.Y, fovRadius, fov.Light{})
+				RecomputeFoV(fovMap, entities, gameMap, player.X, player.Y, fovRadius, fov.Light{})
 			}
 
 			// Draw screen.
@@ -70,22 +73,42 @@ func main() {
 
 			fovRecompute = false
 
-			ClearAll(screen, entities)
+			ClearAll(screen, entities, fovMap)
 
 			// Handle events.
 			switch event := screen.WaitEvent().(type) {
 			case goro.EventKey:
 				switch action := handleKeyEvent(event).(type) {
 				case ActionMove:
-					if !gameMap.IsBlocked(player.X+action.X, player.Y+action.Y) {
-						player.Move(action.X, action.Y)
-						fovRecompute = true
+					if gameState == PlayerTurnState {
+						x := player.X + action.X
+						y := player.Y + action.Y
+						if !gameMap.IsBlocked(x, y) {
+							otherEntity := entity.FindEntityAtLocation(entities, x, y, entity.BlockMovement, entity.BlockMovement)
+							if otherEntity != nil {
+								fmt.Printf("You stick your hand through the %s's body. It is quite clammy.\n", otherEntity.Name)
+							} else {
+								player.Move(action.X, action.Y)
+								fovRecompute = true
+						}
 					}
+					gameState = NPCTurnState
+				}
 				case ActionQuit:
 					goro.Quit()
 				}
 			case goro.EventQuit:
 				return
+			}
+
+			// Handle entity updates.
+			if gameState == NPCTurnState {
+				for i, e := range entities {
+					if i > 0 {
+						fmt.Printf("The %s spams the terminal.\n", e.Name)
+					}
+				}
+				gameState = PlayerTurnState
 			}
 		}
 	})

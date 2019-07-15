@@ -29,6 +29,10 @@ func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.Gam
 					} else {
 						screen.SetBackground(x, y, colors["darkGround"])
 					}
+					if gameMap.LastSeen(x, y) != rune(0) {
+						screen.SetRune(x, y, gameMap.LastSeen(x, y))
+						screen.SetForeground(x, y, goro.Color{0x66, 0x66, 0x66, 0xFF})
+					}
 				}
 			}
 		}
@@ -42,9 +46,9 @@ func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.Gam
 }
 
 // ClearAll clears all entities from the screen.
-func ClearAll(screen *goro.Screen, entities []*entity.Entity) {
+func ClearAll(screen *goro.Screen, entities []*entity.Entity, fovMap fov.Map) {
 	for _, entity := range entities {
-		ClearEntity(screen, entity)
+		ClearEntity(screen, entity, fovMap)
 	}
 }
 
@@ -57,6 +61,8 @@ func DrawEntity(screen *goro.Screen, e *entity.Entity, fovMap fov.Map) {
 }
 
 // ClearEntity clears a given entity from the screen.
-func ClearEntity(screen *goro.Screen, e *entity.Entity) {
-	screen.SetRune(e.X, e.Y, ' ')
+func ClearEntity(screen *goro.Screen, e *entity.Entity, fovMap fov.Map) {
+	if fovMap.Visible(e.X, e.Y) {
+		screen.SetRune(e.X, e.Y, ' ')
+	}
 }

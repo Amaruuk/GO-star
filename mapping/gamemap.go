@@ -28,7 +28,7 @@ func (g *GameMap) Initialize() {
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
-func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity.Entity) {
+func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*entity.Entity, maxMonsters int) {
 	var rooms []*Rect
 
 	for r := 0; r < maxRooms; r++ {
@@ -56,8 +56,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 
 			// Always place the player in the center of the first room.
 			if len(rooms) == 0 {
-				player.X = roomCenterX
-				player.Y = roomCenterY
+				(*entities)[0].X = roomCenterX
+				(*entities)[0].Y = roomCenterY
 			} else {
 				prevCenterX, prevCenterY := rooms[len(rooms)-1].Center()
 
@@ -70,6 +70,9 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, player *entity
 					g.CreateHTunnel(prevCenterX, roomCenterX, roomCenterY)
 				}
 			}
+			// Place random monsters in the room.
+			g.PlaceEntities(room, entities, maxMonsters)
+
 			// Append our new room to our rooms list.
 			rooms = append(rooms, room)
 		}
@@ -99,6 +102,28 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 	}
 }
 
+// PlaceEntities places 0 to maxMonsters monster entites in the provided room.
+func (g *GameMap) PlaceEntities(room *Rect, entities *[]*entity.Entity, maxMonsters int) {
+	monstersCount := goro.Random.Intn(maxMonsters)
+
+	for i := 0; i < monstersCount; i++ {
+		var monster *entity.Entity
+		//Acquire a random location within the room.
+		x := (1 + room.X1) + goro.Random.Intn(room.X2-room.X1-1)
+		y := (1 + room.Y1) + goro.Random.Intn(room.Y2-room.Y1-1)
+
+		if entity.FindEntityAtLocation(*entities, x, y, 0, 0) == nil {
+			//Generate an Algol with 80% probability or a Saiph with 20%.
+			if goro.Random.Intn(100) < 80 {
+				monster = entity.NewEntity(x, y, '1', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Algol", entity.BlockMovement)
+			} else {
+				monster = entity.NewEntity(x, y, '8', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Saiph", entity.BlockMovement)
+			}
+			*entities = append(*entities, monster)
+		}
+	}
+}
+
 // Explored returns if the tile at x by y has been explored.
 func (g *GameMap) Explored(x, y int) bool {
 	if g.InBounds(x, y) {
@@ -111,6 +136,21 @@ func (g *GameMap) Explored(x, y int) bool {
 func (g *GameMap) SetExplored(x, y int, explored bool) {
 	if g.InBounds(x, y) {
 		g.Tiles[x][y].Explored = explored
+	}
+}
+
+// LastSeen returns the last seen rune.
+func (g *GameMap) LastSeen(x, y int) rune {
+	if g.InBounds(x, y) {
+		return g.Tiles[x][y].LastSeen
+	}
+	return rune(0)
+}
+
+// SetLastSeen sets the last seen rune to the entity provided.
+func (g *GameMap) SetLastSeen(x, y int, seen rune) {
+	if g.InBounds(x, y) {
+		g.Tiles[x][y].LastSeen = seen
 	}
 }
 
