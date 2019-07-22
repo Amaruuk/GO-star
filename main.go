@@ -8,6 +8,7 @@ import (
 	"github.com/kettek/goro/fov"
 
 	"star/entity"
+	"star/interfaces"
 	"star/mapping"
 )
 
@@ -54,7 +55,7 @@ func main() {
 
 		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorBlack}, "Player", entity.BlockMovement)
 
-		entities := []*entity.Entity{
+		entities := []interfaces.Entity{
 			player,
 		}
 
@@ -65,7 +66,7 @@ func main() {
 		for {
 
 			if fovRecompute {
-				RecomputeFoV(fovMap, entities, gameMap, player.X, player.Y, fovRadius, fov.Light{})
+				RecomputeFoV(fovMap, entities, gameMap, player.X(), player.Y(), fovRadius, fov.Light{})
 			}
 
 			// Draw screen.
@@ -81,19 +82,19 @@ func main() {
 				switch action := handleKeyEvent(event).(type) {
 				case ActionMove:
 					if gameState == PlayerTurnState {
-						x := player.X + action.X
-						y := player.Y + action.Y
+						x := player.X() + action.X
+						y := player.Y() + action.Y
 						if !gameMap.IsBlocked(x, y) {
 							otherEntity := entity.FindEntityAtLocation(entities, x, y, entity.BlockMovement, entity.BlockMovement)
 							if otherEntity != nil {
-								fmt.Printf("You stick your hand through the %s's body. It is quite clammy.\n", otherEntity.Name)
+								fmt.Printf("You stick your hand through the %s's body. It is quite clammy.\n", otherEntity.Name())
 							} else {
 								player.Move(action.X, action.Y)
 								fovRecompute = true
+							}
 						}
+						gameState = NPCTurnState
 					}
-					gameState = NPCTurnState
-				}
 				case ActionQuit:
 					goro.Quit()
 				}
@@ -105,7 +106,7 @@ func main() {
 			if gameState == NPCTurnState {
 				for i, e := range entities {
 					if i > 0 {
-						fmt.Printf("The %s spams the terminal.\n", e.Name)
+						fmt.Printf("The %s spams the terminal.\n", e.Name())
 					}
 				}
 				gameState = PlayerTurnState

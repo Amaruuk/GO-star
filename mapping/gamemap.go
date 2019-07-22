@@ -2,6 +2,7 @@ package mapping
 
 import (
 	"star/entity"
+	"star/interfaces"
 
 	"github.com/kettek/goro"
 )
@@ -28,7 +29,7 @@ func (g *GameMap) Initialize() {
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
-func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*entity.Entity, maxMonsters int) {
+func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]interfaces.Entity, maxMonsters int) {
 	var rooms []*Rect
 
 	for r := 0; r < maxRooms; r++ {
@@ -56,8 +57,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]*e
 
 			// Always place the player in the center of the first room.
 			if len(rooms) == 0 {
-				(*entities)[0].X = roomCenterX
-				(*entities)[0].Y = roomCenterY
+				(*entities)[0].SetX(roomCenterX)
+				(*entities)[0].SetY(roomCenterY)
 			} else {
 				prevCenterX, prevCenterY := rooms[len(rooms)-1].Center()
 
@@ -103,11 +104,11 @@ func (g *GameMap) CreateVTunnel(y1, y2, x int) {
 }
 
 // PlaceEntities places 0 to maxMonsters monster entites in the provided room.
-func (g *GameMap) PlaceEntities(room *Rect, entities *[]*entity.Entity, maxMonsters int) {
+func (g *GameMap) PlaceEntities(room *Rect, entities *[]interfaces.Entity, maxMonsters int) {
 	monstersCount := goro.Random.Intn(maxMonsters)
 
 	for i := 0; i < monstersCount; i++ {
-		var monster *entity.Entity
+		var monster interfaces.Entity
 		//Acquire a random location within the room.
 		x := (1 + room.X1) + goro.Random.Intn(room.X2-room.X1-1)
 		y := (1 + room.Y1) + goro.Random.Intn(room.Y2-room.Y1-1)

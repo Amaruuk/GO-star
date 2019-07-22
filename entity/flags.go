@@ -1,7 +1,7 @@
 package entity
 
 // Flags represents multiple states stored in a bitflag.
-type Flags = int
+type Flags = uint
 
 // Our entity flags.
 const (

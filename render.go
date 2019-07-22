@@ -4,12 +4,12 @@ import (
 	"github.com/kettek/goro"
 	"github.com/kettek/goro/fov"
 
-	"star/entity"
+	"star/interfaces"
 	"star/mapping"
 )
 
 // DrawAll draws all entities and the gameMap to the screen and flushes it.
-func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.GameMap, fovMap fov.Map, fovRecompute bool, colors map[string]goro.Color) {
+func DrawAll(screen *goro.Screen, entities []interfaces.Entity, gameMap mapping.GameMap, fovMap fov.Map, fovRecompute bool, colors map[string]goro.Color) {
 	if fovRecompute {
 		// Draw all the tiles within the game map.
 		for x, column := range gameMap.Tiles {
@@ -46,23 +46,23 @@ func DrawAll(screen *goro.Screen, entities []*entity.Entity, gameMap mapping.Gam
 }
 
 // ClearAll clears all entities from the screen.
-func ClearAll(screen *goro.Screen, entities []*entity.Entity, fovMap fov.Map) {
+func ClearAll(screen *goro.Screen, entities []interfaces.Entity, fovMap fov.Map) {
 	for _, entity := range entities {
 		ClearEntity(screen, entity, fovMap)
 	}
 }
 
 // DrawEntity draws a given entity to the screen.
-func DrawEntity(screen *goro.Screen, e *entity.Entity, fovMap fov.Map) {
-	if fovMap.Visible(e.X, e.Y) {
-		screen.SetRune(e.X, e.Y, e.Rune)
-		screen.SetForeground(e.X, e.Y, e.Style.Foreground)
+func DrawEntity(screen *goro.Screen, e interfaces.Entity, fovMap fov.Map) {
+	if fovMap.Visible(e.X(), e.Y()) {
+		screen.SetRune(e.X(), e.Y(), e.Rune())
+		screen.SetForeground(e.X(), e.Y(), e.Style().Foreground)
 	}
 }
 
 // ClearEntity clears a given entity from the screen.
-func ClearEntity(screen *goro.Screen, e *entity.Entity, fovMap fov.Map) {
-	if fovMap.Visible(e.X, e.Y) {
-		screen.SetRune(e.X, e.Y, ' ')
+func ClearEntity(screen *goro.Screen, e interfaces.Entity, fovMap fov.Map) {
+	if fovMap.Visible(e.X(), e.Y()) {
+		screen.SetRune(e.X(), e.Y(), ' ')
 	}
 }
