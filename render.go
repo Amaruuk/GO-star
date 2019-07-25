@@ -5,26 +5,25 @@ import (
 	"github.com/kettek/goro/fov"
 
 	"star/interfaces"
-	"star/mapping"
 )
 
 // DrawAll draws all entities and the gameMap to the screen and flushes it.
-func DrawAll(screen *goro.Screen, entities []interfaces.Entity, gameMap mapping.GameMap, fovMap fov.Map, fovRecompute bool, colors map[string]goro.Color) {
+func DrawAll(screen *goro.Screen, entities []interfaces.Entity, gameMap interfaces.GameMap, fovMap fov.Map, fovRecompute bool, colors map[string]goro.Color) {
 	if fovRecompute {
 		// Draw all the tiles within the game map.
-		for x, column := range gameMap.Tiles {
-			for y, tile := range column {
+		for x := 0; x < gameMap.Width(); x++ {
+			for y := 0; y < gameMap.Height(); y++ {
 				visible := fovMap.Visible(x, y)
 
 				if visible {
-					if tile.BlockSight {
+					if gameMap.IsOpaque(x, y) {
 						screen.SetBackground(x, y, colors["lightWall"])
 					} else {
 						screen.SetBackground(x, y, colors["lightGround"])
 					}
 					gameMap.SetExplored(x, y, true)
 				} else if gameMap.Explored(x, y) {
-					if tile.BlockSight {
+					if gameMap.IsOpaque(x, y) {
 						screen.SetBackground(x, y, colors["darkWall"])
 					} else {
 						screen.SetBackground(x, y, colors["darkGround"])

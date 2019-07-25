@@ -46,12 +46,7 @@ func main() {
 			"lightGround": goro.Color{0xDD, 0xDD, 0xDD, 0xFF},
 		}
 
-		gameMap := mapping.GameMap{
-			Width:  mapWidth,
-			Height: mapHeight,
-		}
-
-		gameMap.Initialize()
+		gameMap := mapping.NewGameMap(mapWidth, mapHeight)
 
 		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorBlack}, "Player", entity.BlockMovement)
 
@@ -61,7 +56,7 @@ func main() {
 
 		gameMap.MakeMap(maxRooms, roomMinSize, roomMaxSize, &entities, maxMonstersPerRoom)
 
-		fovMap := InitializeFoV(&gameMap)
+		fovMap := InitializeFoV(gameMap)
 
 		for {
 

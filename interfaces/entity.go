@@ -4,6 +4,7 @@ import (
 	"github.com/kettek/goro"
 )
 
+// Entity is an interface that gets and sets parameters for entities.
 type Entity interface {
 	Move(int, int)
 	X() int

@@ -9,23 +9,28 @@ import (
 
 // GameMap is our map data type.
 type GameMap struct {
-	Width, Height int
-	Tiles         [][]Tile
+	width, height int
+	tiles         [][]Tile
 }
 
-// Initialize initializes a GameMap's Tiles to match its Width and Height. It also sets up some coordinates to block movement and sight.
-func (g *GameMap) Initialize() {
-	g.Tiles = make([][]Tile, g.Width)
+// NewGameMap initializes a GameMap's tiles to match the provided width and height and sets up a few tiles to block movement and sight. Returns a GameMap interface.
+func NewGameMap(width, height int) interfaces.GameMap {
+	g := &GameMap{
+		width: width,
+		height: height,
+	}
+	g.tiles = make([][]Tile, g.width)
 
-	for x := range g.Tiles {
-		g.Tiles[x] = make([]Tile, g.Height)
-		for y := range g.Tiles[x] {
-			g.Tiles[x][y] = Tile{
+	for x := range g.tiles {
+		g.tiles[x] = make([]Tile, g.height)
+		for y := range g.tiles[x] {
+			g.tiles[x][y] = Tile{
 				BlockSight:    true,
 				BlockMovement: true,
 			}
 		}
 	}
+	return g
 }
 
 // MakeMap creates a new randomized map. This is built according to the passed arguments.
@@ -37,8 +42,8 @@ func (g *GameMap) MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]in
 		width := roomMinSize + goro.Random.Intn(roomMaxSize)
 		height := roomMinSize + goro.Random.Intn(roomMaxSize)
 		// Generate a random position within the map boundaries.
-		x := goro.Random.Intn(g.Width - width - 1)
-		y := goro.Random.Intn(g.Height - height - 1)
+		x := goro.Random.Intn(g.width - width - 1)
+		y := goro.Random.Intn(g.height - height - 1)
 		// Create a Rect according to our generated sizes.
 		room := NewRect(x, y, width, height)
 
@@ -128,7 +133,7 @@ func (g *GameMap) PlaceEntities(room *Rect, entities *[]interfaces.Entity, maxMo
 // Explored returns if the tile at x by y has been explored.
 func (g *GameMap) Explored(x, y int) bool {
 	if g.InBounds(x, y) {
-		return g.Tiles[x][y].Explored
+		return g.tiles[x][y].Explored
 	}
 	return false
 }
@@ -136,14 +141,14 @@ func (g *GameMap) Explored(x, y int) bool {
 // SetExplored sets the explored state of the tile at x by y to the passed explored bool.
 func (g *GameMap) SetExplored(x, y int, explored bool) {
 	if g.InBounds(x, y) {
-		g.Tiles[x][y].Explored = explored
+		g.tiles[x][y].Explored = explored
 	}
 }
 
 // LastSeen returns the last seen rune.
 func (g *GameMap) LastSeen(x, y int) rune {
 	if g.InBounds(x, y) {
-		return g.Tiles[x][y].LastSeen
+		return g.tiles[x][y].LastSeen
 	}
 	return rune(0)
 }
@@ -151,8 +156,18 @@ func (g *GameMap) LastSeen(x, y int) rune {
 // SetLastSeen sets the last seen rune to the entity provided.
 func (g *GameMap) SetLastSeen(x, y int, seen rune) {
 	if g.InBounds(x, y) {
-		g.Tiles[x][y].LastSeen = seen
+		g.tiles[x][y].LastSeen = seen
 	}
+}
+
+// Width returns our GameMap's width.
+func (g *GameMap) Width() int {
+	return g.width
+}
+  
+// Height returns our GameMap's height.
+func (g *GameMap) Height() int {
+	return g.height
 }
 
 // IsBlocked returns if the given coordinates are blocking movement.
@@ -161,19 +176,28 @@ func (g *GameMap) IsBlocked(x, y int) bool {
 	if !g.InBounds(x, y) {
 		return true
 	}
-	return g.Tiles[x][y].BlockMovement
+	return g.tiles[x][y].BlockMovement
+}
+
+// IsOpaque returns if the given coordinates are blocking sight.
+func (g *GameMap) IsOpaque(x, y int) bool {
+	// Always block if outside our GameMap's bounds.
+	if !g.InBounds(x, y) {
+		return true
+	}
+	return g.tiles[x][y].BlockSight
 }
 
 // SetTile sets the tile at these specified coordinates to the value of t.
 func (g *GameMap) SetTile(x, y int, t Tile) {
 	if g.InBounds(x, y) {
-		g.Tiles[x][y] = t
+		g.tiles[x][y] = t
 	}
 }
 
 // InBounds ensures that X and Y are within the map's bounds.
 func (g *GameMap) InBounds(x, y int) bool {
-	if x < 0 || x >= g.Width || y < 0 || y >= g.Height {
+	if x < 0 || x >= g.width || y < 0 || y >= g.height {
 		return false
 	}
 	return true

@@ -2,27 +2,25 @@ package main
 
 import (
 	"star/interfaces"
-	"star/mapping"
 
 	"github.com/kettek/goro/fov"
 )
 
 // InitializeFoV initializes the FoV
-func InitializeFoV(g *mapping.GameMap) fov.Map {
-	fovMap := fov.NewMap(g.Width, g.Height, fov.AlgorithmBBQ)
+func InitializeFoV(g interfaces.GameMap) fov.Map {
+	fovMap := fov.NewMap(g.Width(), g.Height(), fov.AlgorithmBBQ)
 
-	for x := range g.Tiles {
-		for y, tile := range g.Tiles[x] {
-			fovMap.SetBlocksMovement(x, y, tile.BlockMovement)
-			fovMap.SetBlocksLight(x, y, tile.BlockSight)
+	for x := 0; x < g.Width(); x++ {
+		for y := 0; y < g.Height(); y++ {
+			fovMap.SetBlocksMovement(x, y, g.IsBlocked(x, y))
+			fovMap.SetBlocksLight(x, y, g.IsOpaque(x, y))
 		}
 	}
-
 	return fovMap
 }
 
 // RecomputeFoV recomputes the FoV
-func RecomputeFoV(fovMap fov.Map, entities []interfaces.Entity, gameMap mapping.GameMap, centerX, centerY int, radius int, light fov.Light) {
+func RecomputeFoV(fovMap fov.Map, entities []interfaces.Entity, gameMap interfaces.GameMap, centerX, centerY int, radius int, light fov.Light) {
 	entitiesInView := make([]bool, len(entities))
 	for i, e := range entities {
 		if fovMap.Visible(e.X(), e.Y()) {
