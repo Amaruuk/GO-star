@@ -52,6 +52,8 @@ github.com/kettek/goro v0.0.0-20190714043943-3d74031f9865 h1:u2zbzeLfL6VNjPgA/eE
 github.com/kettek/goro v0.0.0-20190714043943-3d74031f9865/go.mod h1:fO57DVF4MXRm+AOQWrFN0CFCbihOO36HUn42vjr00fU=
 github.com/kettek/goro v0.0.0-20190714065548-99acc2c2dfc6 h1:FCsai3fryfdqsKCmnH5o2k8WvVlwC1PLWUS2+kYFhiw=
 github.com/kettek/goro v0.0.0-20190714065548-99acc2c2dfc6/go.mod h1:fO57DVF4MXRm+AOQWrFN0CFCbihOO36HUn42vjr00fU=
+github.com/kettek/goro v0.0.0-20190717081121-8c84bc10b416 h1:Z9MxEbI0FFee0UUKn8lx8Qd7F9MjmULF93lHUI0XJDo=
+github.com/kettek/goro v0.0.0-20190717081121-8c84bc10b416/go.mod h1:fO57DVF4MXRm+AOQWrFN0CFCbihOO36HUn42vjr00fU=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=

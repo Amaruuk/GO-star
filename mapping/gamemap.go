@@ -16,7 +16,7 @@ type GameMap struct {
 // NewGameMap initializes a GameMap's tiles to match the provided width and height and sets up a few tiles to block movement and sight. Returns a GameMap interface.
 func NewGameMap(width, height int) interfaces.GameMap {
 	g := &GameMap{
-		width: width,
+		width:  width,
 		height: height,
 	}
 	g.tiles = make([][]Tile, g.width)
@@ -121,10 +121,12 @@ func (g *GameMap) PlaceEntities(room *Rect, entities *[]interfaces.Entity, maxMo
 		if entity.FindEntityAtLocation(*entities, x, y, 0, 0) == nil {
 			//Generate an Algol with 80% probability or a Saiph with 20%.
 			if goro.Random.Intn(100) < 80 {
-				monster = entity.NewEntity(x, y, '1', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Algol", entity.BlockMovement)
+				monster = entity.NewMonsterEntity(x, y, '1', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Algol")
 			} else {
-				monster = entity.NewEntity(x, y, '8', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Saiph", entity.BlockMovement)
+				monster = entity.NewMonsterEntity(x, y, '8', goro.Style{Foreground: goro.Color{0x2E, 0x2E, 0x2E, 0xFF}}, "Saiph")
 			}
+			// Set the monster's target to the player.
+			monster.Actor().SetTarget((*entities)[0])
 			*entities = append(*entities, monster)
 		}
 	}
@@ -164,7 +166,7 @@ func (g *GameMap) SetLastSeen(x, y int, seen rune) {
 func (g *GameMap) Width() int {
 	return g.width
 }
-  
+
 // Height returns our GameMap's height.
 func (g *GameMap) Height() int {
 	return g.height

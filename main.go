@@ -48,7 +48,7 @@ func main() {
 
 		gameMap := mapping.NewGameMap(mapWidth, mapHeight)
 
-		player := entity.NewEntity(0, 0, '@', goro.Style{Foreground: goro.ColorBlack}, "Player", entity.BlockMovement)
+		player := entity.NewPlayerEntity()
 
 		entities := []interfaces.Entity{
 			player,
@@ -99,9 +99,9 @@ func main() {
 
 			// Handle entity updates.
 			if gameState == NPCTurnState {
-				for i, e := range entities {
-					if i > 0 {
-						fmt.Printf("The %s spams the terminal.\n", e.Name())
+				for _, e := range entities {
+					if e.Actor() != nil {
+						e.Actor().TakeTurn(fovMap, gameMap, entities)
 					}
 				}
 				gameState = PlayerTurnState

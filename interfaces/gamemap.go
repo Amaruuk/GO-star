@@ -2,7 +2,7 @@ package interfaces
 
 // GameMap is an interface that provides access to tile state and more.
 type GameMap interface {
-	MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]interfaces.Entity, maxMonsters int)
+	MakeMap(maxRooms, roomMinSize, roomMaxSize int, entities *[]Entity, maxMonsters int)
 	Width() int
 	Height() int
 	IsBlocked(x, y int) bool
